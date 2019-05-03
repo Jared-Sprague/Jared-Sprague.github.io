@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <!-- Google Analytics -->
+  
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-109256719-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-109256719-1');
+    </script>
+
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Favicon -->
+  
+
+  <!-- Title -->
+  
+  <title>p5.js Benchmark System - Jared Sprague</title>
+
+  <!--Description-->
+  
+      <meta name="description" content="I was browsing the open p5.js issues when I stubbled across this one. There was an open request to add performance benchmarking to the p5.js developme">
+  
+
+  <!--Author-->
+  
+      <meta name="author" content="Jared Sprague">
+  
+
+  <!--Open Graph Title-->
+  
+      <meta property="og:title" content="p5.js Benchmark System">
+  
+
+  <!--Open Graph Site Name-->
+  <meta property="og:site_name" content="Jared Sprague">
+
+  <!-- Pure CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://fonts.googleapis.com/css?family=EB+Garamond|Montserrat:300" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+  <body>
+
+		<div class="container my-4">
+  <nav class="navbar navbar-toggleable-sm navbar-light px-1 py-3 my-3 mb-sm-3">
+    <a class="navbar-brand ml-2" href="/"><span class="title">Jared Sprague</span></a>
+    <button class="navbar-toggler navbar-toggler-right py-2" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse text-center mt-3 mt-md-0" id="navbarCollapse">
+      <ul class="navbar-nav ml-auto my-auto">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+        
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+          </li>
+        
+          <li class="nav-item">
+            <a class="nav-link" href="/contact">Contact</a>
+          </li>
+        
+          <li class="nav-item">
+            <a class="nav-link" href="http://scripta.co/">Scripta Games</a>
+          </li>
+        
+      </ul>
+      <hr class="hidden-md-up">
+    </div>
+  </nav>
+</div>
+
+
+		<div class="container">
+			
+  <div class="row">
+    <div class="col-12">
+          <img class="img-fluid cover-image" src="/images/benchmark.jpg" alt="p5.js Benchmark System">
+    </div>
+  </div>
+
+<div class="row">
+  <div class="col-12 col-lg-8 offset-lg-2 mt-4">
+
+    <div class="post-page text-center my-4">
+      <h1>p5.js Benchmark System</h1>
+      <hr>
+      <span class="date">2017-11-05</span>
+    </div>
+
+    <p>I was browsing the open <a href="https://github.com/processing/p5.js/issues/1524" target="_blank" rel="noopener">p5.js</a> issues when I stubbled across <a href="https://github.com/processing/p5.js/issues/1524" target="_blank" rel="noopener">this one</a>. There was an open request to add performance benchmarking to the p5.js development tools, that would run benchmarks in multiple real browsers. The goal was to know when performance optimizations were really helping or adding unnecessary complexity.  That looked like a fun problem to work on.  Since performance testing is one thing I really love doing, I decided to take it on.  I learned A lot in the process.  This post explains the main parts of the of the system I put together,  using existing plugins.  It is copied from the <a href="https://github.com/processing/p5.js/wiki/Benchmarking-p5.js" target="_blank" rel="noopener">article on the p5.js wiki</a> .</p>
+<h1 id="Benchmarking-p5-js"><a href="#Benchmarking-p5-js" class="headerlink" title="Benchmarking p5.js"></a>Benchmarking p5.js</h1><p>We have a grunt task that runs performance benchmarks in multiple real browsers on the developers local machine. It will automatically detect which browsers are installed from the following list (Chrome, Firefox, Safari, Edge, IE) and run the benchmarks in all installed browsers and report the results.</p>
+<p>Our benchmarking system consists of 3 main components:</p>
+<ol>
+<li><a href="https://benchmarkjs.com/" target="_blank" rel="noopener">Benchmark.js</a> - the engine that runs the benchmarks and the framework for defining benchmarks.</li>
+<li><a href="https://www.npmjs.com/package/karma-benchmark" target="_blank" rel="noopener">karma-benchmark</a> - The karma plugin for launching and running the benchmarks in multiple real browsers.</li>
+<li><a href="https://www.npmjs.com/package/grunt-karma" target="_blank" rel="noopener">grunt-karma</a> - The grunt plugin that allows us to define different karma configuations per grunt command.  This allows us to run single benchmarks or groups of benchmarks.</li>
+</ol>
+<h2 id="Basic-instructions"><a href="#Basic-instructions" class="headerlink" title="Basic instructions:"></a>Basic instructions:</h2><h3 id="Install-the-new-dependancies"><a href="#Install-the-new-dependancies" class="headerlink" title="Install the new dependancies"></a>Install the new dependancies</h3><p><code>npm install</code></p>
+<h3 id="Do-a-build-the-benchmarks-expect-a-local-build-of-p5-js-and-p5-min-js"><a href="#Do-a-build-the-benchmarks-expect-a-local-build-of-p5-js-and-p5-min-js" class="headerlink" title="Do a build, the benchmarks expect a local build of p5.js and p5.min.js"></a>Do a build, the benchmarks expect a local build of p5.js and p5.min.js</h3><p><code>grunt</code></p>
+<h3 id="Run-a-specific-benchmark"><a href="#Run-a-specific-benchmark" class="headerlink" title="Run a specific benchmark"></a>Run a specific benchmark</h3><p><code>grunt karma:&lt;target_benchmark&gt;</code></p>
+<h3 id="To-run-all-the-benchmarks"><a href="#To-run-all-the-benchmarks" class="headerlink" title="To run all the benchmarks"></a>To run all the benchmarks</h3><p><code>grunt karma</code></p>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><p><code>grunt karma:random-dev</code></p>
+<p>Outputs:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Chrome 62.0.3202 (Linux 0.0.0)</span><br><span class="line">  p5 random() vs Math.random(): Math.random() at 95811115 ops/sec (1.26x faster than p5 random())</span><br><span class="line">Firefox 56.0.0 (Fedora 0.0.0)</span><br><span class="line">  p5 random() vs Math.random(): Math.random() at 2367566507 ops/sec (1.14x faster than p5 random())</span><br><span class="line"></span><br><span class="line">Done, without errors.</span><br></pre></td></tr></table></figure></p>
+<h2 id="Adding-new-benchmarks"><a href="#Adding-new-benchmarks" class="headerlink" title="Adding new benchmarks"></a>Adding new benchmarks</h2><ol>
+<li>Create a new benchmark file at this path and name format:  bench/*.bench.js</li>
+<li>Write the benchmark here is documentation <a href="https://github.com/JamieMason/karma-benchmark/blob/master/README.md" target="_blank" rel="noopener">karma-benchmark</a></li>
+<li>Add the benchmark target to <code>grunt-karma.js</code></li>
+</ol>
+<h3 id="Example-benchmark-random-fe-off-bench-js"><a href="#Example-benchmark-random-fe-off-bench-js" class="headerlink" title="Example benchmark [random-fe-off.bench.js]"></a>Example benchmark [random-fe-off.bench.js]</h3><p>Here is an example benchmark that compares p5 random() to Math.random() with Friendly Error System disabled. It has two suites one for instanced mode and one using the global window random().</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">p5.disableFriendlyErrors = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p5Inst = <span class="keyword">new</span> p5();</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  Instance random() vs Math.random()</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">suite(<span class="string">'Friendly Errors: OFF, Instance random() vs Math.random()'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  benchmark(<span class="string">'Instance random()'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> p5Inst.random();</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  benchmark(<span class="string">'Math.random()'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Math</span>.random();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  Window random() vs Math.random()</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">suite(<span class="string">'Friendly Errors: OFF, Window random() vs Math.random()'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  benchmark(<span class="string">'window random()'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> random();</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  benchmark(<span class="string">'Math.random()'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Math</span>.random();</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Then you would need to add your new benchmark to <code>grunt-karma.js</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="string">'random-fe-off-dev'</span>: &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">      files: [</span><br><span class="line">        <span class="string">'lib/p5.js'</span>,</span><br><span class="line">        <span class="string">'bench/math/random-fe-off.bench.js'</span></span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>Now you can run your new benchmark with:<br><code>grunt karma:random-fe-off-dev</code></p>
+<h2 id="Comparing-Prod-to-Dev"><a href="#Comparing-Prod-to-Dev" class="headerlink" title="Comparing Prod to Dev"></a>Comparing Prod to Dev</h2><p>karma-benchmark can load remote files.  So it’s easy to include the p5.js prod build and compare it to the dev build.  This is important when you’re working on improving performance to compare your changes to what is in production.   To do this simply make two targets in <code>grunt-karma.js</code> one for prod and one for dev.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&apos;random-prod&apos;: &#123;</span><br><span class="line">  options: &#123;</span><br><span class="line">    files: [</span><br><span class="line">      &apos;https://cdnjs.cloudflare.com/ajax/libs/p5.js/&lt;%= pkg.version %&gt;/p5.js&apos;,</span><br><span class="line">      &apos;bench/random.bench.js&apos;,</span><br><span class="line">    ],</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;,</span><br><span class="line">&apos;random-dev&apos;: &#123;</span><br><span class="line">  options: &#123;</span><br><span class="line">    files: [</span><br><span class="line">      &apos;lib/p5.js&apos;,</span><br><span class="line">      &apos;bench/random.bench.js&apos;,</span><br><span class="line">    ],</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>You can see that <code>random-prod</code> actually loads the latest build from CDN.  Then to compare you can run both targets using:<br><code>grunt karma:random-prod karma:random-dev</code></p>
+<h2 id="Notes"><a href="#Notes" class="headerlink" title="Notes"></a>Notes</h2><p>I chose to put the grunt-karma tasks in it’s own file <code>grunt-karma.js</code>  instead of the main <code>Gruntfile.js</code>, because as we add more benchmarks overtime the file could grow quite long, and I wanted to keep the main Gruntfile clean.</p>
+
+
+    
+
+
+  </div>
+</div>
+
+
+
+			<footer class="text-center mt-5 py-5">
+  
+  
+    <a href="https://twitter.com/caramelcode" target="_blank"><i class="fa fa-twitter mr-4"></i></a>
+  
+  
+    <a href="https://www.facebook.com/jared.sprague" target="_blank"><i class="fa fa-facebook mr-4"></i></a>
+  
+  
+    <a href="https://www.instagram.com/caramelcode/" target="_blank"><i class="fa fa-instagram mr-4"></i></a>
+  
+  
+    <a href="https://www.linkedin.com/in/jared-sprague-9258081/" target="_blank"><i class="fa fa-linkedin mr-4"></i></a>
+  
+  
+  
+    <a href="https://github.com/Jared-Sprague" target="_blank"><i class="fa fa-github mr-4"></i></a>
+  
+  
+  
+  
+</footer>
+
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+<!-- Disqus Comments -->
+
+
+
+  </body>
+</html>
